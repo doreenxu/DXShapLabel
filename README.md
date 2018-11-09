@@ -1,2 +1,1 @@
 # DXShapLabel
-DXShapLabel
