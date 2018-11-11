@@ -50,7 +50,7 @@ namespace cocos2d
 		//---------- ��Ʒ ----------
 		struct LabelEffect
 		{
-
+			void execute();
 		};
 
 		struct LabelAction 
@@ -61,6 +61,12 @@ namespace cocos2d
 		struct LabelComponent 
 		{
 		public: 
+			typedef struct TriangleInfo
+            {
+                std::vector<V3F_C4B_T2F>    triangles;
+                std::vector<unsigned short> indices;
+            };
+
 			static LabelComponent* create()
 			{
 				auto comp = new LabelComponent();
@@ -88,26 +94,21 @@ namespace cocos2d
 			// ����
 			size_t getTextMaxWidth() { return 0; }
 
+			// 对label的所有操作最终转为triangleinfo缓存在componnet对象中，并以component
+			// 为单位进行合并
+			void addGlyphQuad(unsigned int code, TriangleInfo triangleInfo){
 
+			}
 		private:
 			std::string m_content;
 
 			unsigned int m_fontSize;
-			// color
-			cocos2d::Color4B m_fontColor;
-
-			// shap
-			unsigned int glyph_count;
-			hb_glyph_info_t *glyph_info;
-			hb_glyph_position_t *glyph_pos;
-
-			// 
+			// 这个没有用，因为同一个code经过塑形后可能对应不同的glyph
 			std::map<unsigned short, unsigned int> m_glyphIndexMap;
 			// style, outline, shadow
 			std::vector<LabelEffect*> m_effList;
 			// render
-			std::vector<V3F_C4B_T2F_Quad> m_quads;
-
+			std::unordered_map<unsigned short, TriangleInfo> triangleInfoList;
 		};
 
 

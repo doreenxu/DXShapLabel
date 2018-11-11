@@ -36,6 +36,10 @@ namespace cocos2d
 			hb_glyph_info_t *glyphInfo = hb_buffer_get_glyph_infos(m_buffer, &glyphCount);
 			hb_glyph_position_t *glyphPos = hb_buffer_get_glyph_positions(m_buffer, &glyphCount);
 
+			LabelComponent::TriangleInfo triangleInfo;
+			float textWidth = 0;
+			float textHeight = 0;
+			
 			for (int i = 0; i < glyphCount; ++i) {
 				Glyph* glyph = m_ftLib->rasterize(m_ftface, glyphInfo[i].codepoint);
 
@@ -68,21 +72,25 @@ namespace cocos2d
 				indices[2] = 2; indices[3] = 0;
 				indices[4] = 2; indices[5] = 3;
 
-				gl::Mesh* m = new gl::Mesh;
+				// gl::Mesh* m = new gl::Mesh;
 
-				m->indices = indices;
-				m->textureData = tdata;
+				// m->indices = indices;
+				// m->textureData = tdata;
 
-				// don't do this!! use atlas texture instead
-				m->textureId = gl::getTextureId(twidth, theight);
+				// // don't do this!! use atlas texture instead
+				// m->textureId = gl::getTextureId(twidth, theight);
 
-				m->vertices = vertices;
-				m->nbIndices = 6;
-				m->nbVertices = 4;
+				// m->vertices = vertices;
+				// m->nbIndices = 6;
+				// m->nbVertices = 4;
 
-				gl::uploadTextureData(m->textureId, twidth, theight, tdata);
+				// gl::uploadTextureData(m->textureId, twidth, theight, tdata);
 
-				meshes.push_back(m);
+				// meshes.push_back(m);
+				triangleInfo.triangles.emplace_back(vertices);
+				triangleInfo.indices.emplace_back(indices);
+
+				lbComp.addGlyphQuad(i, triangleInfo);
 
 				x += xa;
 				y += ya;
@@ -90,7 +98,7 @@ namespace cocos2d
 				lib->freeGlyph(glyph);
 			}
 
-			return meshes;
+			//return meshes;
 
 		}
 	}

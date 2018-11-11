@@ -1508,7 +1508,7 @@ namespace cocos2d
                     else
                     {
                         // 换行了，结束当前行的
-
+                        
 
 						// 初始化新的一行
                         curLine++;

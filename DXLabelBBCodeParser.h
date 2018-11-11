@@ -46,27 +46,6 @@ namespace cocos2d
     {
 
 		//---------- ��Ʒ ----------
-		class LabelEffect
-		{
-			void execute();
-		};
-		
-		class UnderlineEffect : public LabelEffect
-		{
-
-		};
-		class BoldEffect : public LabelEffect
-		{
-			void execute();
-		};
-		class OutlineEffect : public LabelEffect
-		{
-
-		};
-		class ShadowEffect : public LabelEffect
-		{
-
-		};
 		
 		/*
 		BBCode�������������п�ͷ��β�����䣬�õ�һ��BBCoede��Ʒ
@@ -147,6 +126,24 @@ namespace cocos2d
 			}
 		};
 
+		// 这种类可以用宏定义生成
+		class UnderlineParser : public DXLabelBBCodeParser
+		{
+		public:
+			virtual void initRule() 
+			{
+				m_beginSymble = { '[', 'u', ']' };
+				m_endSymble = { '[', '/', 'u', ']' };
+				m_beginSymbleSize = 3;
+				m_endSymbleSize = 4;
+			}
+		protected:
+			// TODO： effect可以加入参数
+			virtual LabelEffect* CreateEffect()
+			{
+				return new UnderlineEffect();
+			}
+		};
 
 
 		/*
