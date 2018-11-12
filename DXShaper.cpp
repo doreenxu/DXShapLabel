@@ -95,8 +95,14 @@ namespace cocos2d
 				x += xa;
 				y += ya;
 
+				textWidth = x;
+				textHeight = MAX(y, textHeight);
+
 				lib->freeGlyph(glyph);
 			}
+
+			lbComp->settextWidth(textWidth);
+			lbComp->settextHeight(textHeight);
 
 			//return meshes;
 

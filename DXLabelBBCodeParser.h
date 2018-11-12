@@ -103,6 +103,9 @@ namespace cocos2d
 		protected:
 			std::string m_beginSymble;
 			std::string m_endSymble;
+
+			std::string m_paramName;//参数用空格分割，[img scale=1 path=2] 
+
 			int m_beginSymbleSize;
 			int m_endSymbleSize;
 		};
@@ -144,6 +147,30 @@ namespace cocos2d
 				return new UnderlineEffect();
 			}
 		};
+
+		class ColorParser : public DXLabelBBCodeParser
+		{
+		public:
+			virtual void initRule() 
+			{
+				m_beginSymble = { '[', 'i','m','g' };
+				m_endSymble = { '[', '-', ']' };
+				m_beginSymbleSize = 4;
+				m_endSymbleSize = 3;
+			}
+
+			virtual void parseParam()
+			{
+				imageName
+			}
+		protected:
+			// TODO： effect可以加入参数
+			virtual LabelEffect* CreateEffect()
+			{
+				return new UnderlineEffect();
+			}
+		};
+		
 
 
 		/*

@@ -48,6 +48,13 @@ namespace cocos2d
 		};
         class ColorEffect : public LabelEffect{
             public:
+            void execute(LabelComponent* comp)
+            {
+                 Color4B tmpFontClr = iter.ignoreColor ? Color4B(iter.color.r, iter.color.g, iter.color.b,
+                    static_cast<GLubyte>((static_cast<float>(iter.color.a) / 255.0f) * this->getDisplayedOpacity())) :
+                    Color4B(mFontColor.r, mFontColor.g, mFontColor.b,
+                    static_cast<GLubyte>((static_cast<float>(mFontColor.a) / 255.0f) * this->getDisplayedOpacity()));
+            }
 			cocos2d::Color4B m_fontColor;
         };
     }
