@@ -1,61 +1,52 @@
-#include "DXLabelParser.h"
+#ifndef _CUSTOM_DXLabelEffect
+#define _CUSTOM_DXLabelEffect
 
+#include "DXLabelParser.h"
+#include "2d/CCFontFreeType.h"
+#include "hb-ft.h"
 
 namespace cocos2d
 {
     namespace ui
     {       
-		class UnderlineEffect : public LabelEffect
+		struct Glyph;
+		enum class EffectStyle : int
 		{
-            // 效果对象会对component的triangle属性进行修改
-			void execute(LabelComponent* comp)
-            {
-                //原实现是在每个字符加入“_“下划线，这样实现，下划线之间会有间隙
-                //考虑加入一条（textwidth，1）的线，
-            }
-            
+			None = 0,
+			EffectStyle_Bold = 1 << 0,
+			EffectStyle_Underline = 1 << 1,
+			EffectStyle_Italic = 1 << 2,
+			EffectStyle_Outline = 1 << 3,
+			EffectStyle_Color = 1 << 4,
+
+			EffectStyle_All = (EffectStyle_Bold | EffectStyle_Underline 
+												| EffectStyle_Italic 
+												| EffectStyle_Outline 
+												| EffectStyle_Color),
 		};
-		class BoldEffect : public LabelEffect
+
+		// 根据特效生成bitmap是有关联性的，必须要一起考虑
+		class DXLabelBitmapGenerator
 		{
-			void execute();
+		public:
+			bool getBitmap(Glyph* _glyph);
+			
+			bool getNormalBitmap(Glyph* _glyph);
+			bool setRotateBitmap(Glyph* _glyph);
+			bool setOutLineBitmap(Glyph* _glyph);
 		};
-		class OutlineEffect : public LabelEffect
-		{
-            void execute(LabelComponent* comp)
-            {
 
-            }
+		struct ColorEffect : public DXLabelBitmapGenerator{
+		public:
+			void execute(LabelComponent* comp);
+		private:
 
-            //https://www.freetype.org/freetype2/docs/tutorial/example2.cpp
-            // Set up the raster parameters and render the outline.
-            void
-            RenderSpans(FT_Library &library,
-                        FT_Outline * const outline,
-                        Spans *spans) 
-            {
-            FT_Raster_Params params;
-            memset(&params, 0, sizeof(params));
-            params.flags = FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT;
-            params.gray_spans = RasterCallback;
-            params.user = spans;
-
-            FT_Outline_Render(library, outline, &params);
-            }
-		};
-		class ShadowEffect : public LabelEffect
-		{
-
-		};
-        class ColorEffect : public LabelEffect{
-            public:
-            void execute(LabelComponent* comp)
-            {
-                 Color4B tmpFontClr = iter.ignoreColor ? Color4B(iter.color.r, iter.color.g, iter.color.b,
-                    static_cast<GLubyte>((static_cast<float>(iter.color.a) / 255.0f) * this->getDisplayedOpacity())) :
-                    Color4B(mFontColor.r, mFontColor.g, mFontColor.b,
-                    static_cast<GLubyte>((static_cast<float>(mFontColor.a) / 255.0f) * this->getDisplayedOpacity()));
-            }
+			// cache
+			FT_Matrix lastMatrix;              /* transformation matrix */
+			FT_Vector lastPen;
+			EffectStyle lastEffectStyle; // 
 			cocos2d::Color4B m_fontColor;
         };
     }
 }
+#endif//_CUSTOM_DXLabelEffect

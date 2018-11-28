@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include "base/uthash.h"
+#include "hb-ft.h"
 
 using namespace std;
 
