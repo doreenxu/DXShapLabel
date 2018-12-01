@@ -15,6 +15,7 @@ namespace cocos2d
 		class DXLabelParseOper;
 		class DXShaper;
 		class DXLabelBitmapGenerater;
+		class DXBreakParser;
 
 
 		// 一个字形渲染时需要用到的属性，此Glyph生成与Parse阶段，经历Shape，Sample，Rasterize 阶段，
@@ -72,8 +73,16 @@ namespace cocos2d
 			std::map<std::string, DXLabelParseOper*> m_parserMap;
 			DXShaper* m_shaper;
 			DXLabelBitmapGenerater* m_bitmapGen;
+			st::map<std::string, DXBreakParser*> m_breakParserMap; //不同的语言，断词规则不同
+			//EN：空格处断词;
+			//Thai: 使用libThai的断词逻辑；
+			//JP： 
 
 			Director* _director;            //cached director pointer to improve rendering performance
+			
+			typedef std::vector<V3F_C4B_T2F_Quad>           QuadList;
+            typedef std::unordered_map<GLuint, QuadList>    QuadListMap;
+            QuadListMap m_quadMap;
 		};
 	}
 }
