@@ -1,3 +1,5 @@
+#ifndef _CUSTOM_DXLabelEscapeParser
+#define _CUSTOM_DXLabelEscapeParser
 
 #include "base/ccTypes.h"
 
@@ -19,15 +21,13 @@
 #include "2d/CCSprite.h"
 #include "renderer/CCQuadCommand.h"
 #include "ui/UIWidget.h"
-#include "external/HarfBuzz/hbshaper.h"
+//#include "external/HarfBuzz/hbshaper.h"
 #include "DXLabelParser.h"
 
 #define WEC_LABEL_VBO_SIZE 65536
 
 // CUSTOM_INCLUDE_END
 
-#ifndef _CUSTOM_DXLabelEscapeParser
-#define _CUSTOM_DXLabelEscapeParser
 
 namespace cocos2d
 {
@@ -43,18 +43,7 @@ namespace cocos2d
         // force namespace to ui, because the auto generate binding config is only one namespace.
     namespace ui
     {
-        class LabelAction
-		{
-		public:
-			enum ActionType
-			{
-				AT_Shap,
-				AT_Break,
-				AT_WeakBreak,
-			};
-		};
-
-		class LabelBreakAction : LabelAction
+		struct LabelBreakAction : LabelAction
 		{
 
 		};
@@ -70,7 +59,7 @@ namespace cocos2d
             LabelComponent** refComp,
 			LabelAction** refAction)
 			{
-
+				return false;
 			}
 		protected:
 		private:

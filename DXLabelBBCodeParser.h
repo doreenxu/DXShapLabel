@@ -1,3 +1,5 @@
+#ifndef _CUSTOM_DXLabelBBCodeParser
+#define _CUSTOM_DXLabelBBCodeParser
 
 #include "base/ccTypes.h"
 
@@ -19,13 +21,13 @@
 #include "2d/CCSprite.h"
 #include "renderer/CCQuadCommand.h"
 #include "ui/UIWidget.h"
-#include "external/HarfBuzz/hbshaper.h"
+//#include "external/HarfBuzz/hbshaper.h"
 #include "DXLabelParser.h"
+#include "DXLabelEffect.h"
 
 // CUSTOM_INCLUDE_END
 
-#ifndef _CUSTOM_DXLabelBBCodeParser
-#define _CUSTOM_DXLabelBBCodeParser
+
 
 namespace cocos2d
 {
@@ -51,22 +53,29 @@ namespace cocos2d
     		std::string m_beginSymble;
 			std::string m_endSymble;
 			std::string m_param;//参数用空格分割，[img scale=1 path=2] 
-    	}
+		};
+
+		struct ImgItem
+		{
+			std::string m_beginSymble;
+			std::string m_endSymble;
+			std::string m_imgPath;
+		};
 		/*
 		*/
 		class DXLabelBBCodeParser : public DXLabelParseOper
 		{
 		public:
-
-		protected:
-			virtual void initRule(const std::string& text)
+			void init()
 			{
+				addBBCodeItem({ '[', 'b', ']' }, { '[', '/','b', ']' }, EffectStyle::EffectStyle_Bold);
+				addBBCodeItem({ '[', 'u', ']' }, { '[', '/','u', ']' }, EffectStyle::EffectStyle_Underline);
+				addBBCodeItem({ '[', 'i', ']' }, { '[', '/','i', ']' }, EffectStyle::EffectStyle_Italic);
+				addImageItem({ '[','i','m','g','=' }, { '[', '-', ']' });
 			}
-			virtual bool TryParse(const std::string& text, 
-			int begin_offset, int& end_offset)
-			{
-				initRule(text);
 
+			virtual bool TryParse(const std::string& text, int begin_offset, int& end_offset)
+			{
 				for(auto item : m_bbcodeItemVec)
 				{
 					if (item.m_beginSymble.empty() || item.m_endSymble.empty())
@@ -80,121 +89,69 @@ namespace cocos2d
 					if (foundBegin != std::string::npos)
 					{
 						pushEffect(item.m_style);
-						end_offset = foundBegin + item.m_beginSymble;
+						end_offset = foundBegin + item.m_beginSymble.length();
 						return true;
 					}
 					foundEnd = text.find(item.m_endSymble);
 					if (foundEnd != std::string::npos)
 					{
 						popEffect(item.m_style);
-						end_offset = foundBegin + item.m_beginSymble;
+						end_offset = foundBegin + item.m_beginSymble.length();
 						return true;
 					}
-				
+				}
 
-					// 修改思路：不要去找结尾符号，这样不易嵌套，
-					// foundEnd = text.find(m_endSymble, foundBegin+1);
-					// if (foundEnd != std::string::npos)
-					// {
-					// 	end_offset = foundEnd + m_endSymbleSize;
-					// 	std::string content = subText.substr(m_beginSymbleSize + 1, foundEnd - foundBegin - m_beginSymbleSize);
+				for (auto item : m_imgItemVec)
+				{
 
-					// 	*refComp = CreateComponent();
-					// 	if (*refComp != nullptr)
-					// 	{
-					// 		(*refComp)->setContent(content.c_str());
-					// 	}
-					// 	return true;
-					// }
 				}
 				return false;
 			}
 
 			virtual EffectStyle GetCurrentStyle()
 			{
-
+				return m_curStyle;
 			}
 
-			void pushEffect()
+			void pushEffect(EffectStyle _style)
 			{
-				m_curStyle = m_curStyle | 
+				m_curStyle = (EffectStyle)((int)m_curStyle | (int)_style);
 			}
-			void popEffect()
+			void popEffect(EffectStyle _style)
 			{
+				auto a = (int)_style ^ 1;
+				m_curStyle = (EffectStyle)((int)m_curStyle & a);
+			}
 
+			void addBBCodeItem(std::string beginSymble, std::string endSymble, EffectStyle _style)
+			{
+				BBCodeItem item;
+				item.m_beginSymble = beginSymble;
+				item.m_endSymble = endSymble;
+				item.m_style = _style;
+				m_bbcodeItemVec.emplace_back(item);
+			}
+
+			void addImageItem(std::string beginSymble, std::string endSymble)
+			{
+				ImgItem item;
+				item.m_beginSymble = beginSymble;
+				item.m_endSymble = endSymble;
+				m_imgItemVec.emplace_back(item);
 			}
 
 
 		protected:
-			
-
-
 			std::vector<BBCodeItem> m_bbcodeItemVec;
+			std::vector<ImgItem> m_imgItemVec;
 			EffectStyle m_curStyle;
-		};
-
-		// ����BBCodeParser�����ƥ��ɹ�������һ��BoldComponent��Ʒ
-		class BBCodeBoldParser : public DXLabelBBCodeParser
-		{
-		public:
-			virtual void initRule() 
-			{
-				m_beginSymble = { '[', 'b', ']' };
-				m_endSymble = { '[', '/', 'b', ']' };
-				m_beginSymbleSize = 3;
-				m_endSymbleSize = 4;
-			}
-		protected:
-			// TODO： effect可以加入参数
-			virtual LabelEffect* CreateEffect()
-			{
-				return new BoldEffect();
-			}
-		};
-
-		// 这种类可以用宏定义生成
-		class UnderlineParser : public DXLabelBBCodeParser
-		{
-		public:
-			virtual void initRule() 
-			{
-				m_beginSymble = { '[', 'u', ']' };
-				m_endSymble = { '[', '/', 'u', ']' };
-				m_beginSymbleSize = 3;
-				m_endSymbleSize = 4;
-			}
-		protected:
-			// TODO： effect可以加入参数
-			virtual LabelEffect* CreateEffect()
-			{
-				return new UnderlineEffect();
-			}
-		};
-
-		class ColorParser : public DXLabelBBCodeParser
-		{
-		public:
-			virtual void initRule() 
-			{
-				m_beginSymble = { '[', 'i','m','g' };
-				m_endSymble = { '[', '-', ']' };
-				m_beginSymbleSize = 4;
-				m_endSymbleSize = 3;
-			}
-
-			virtual void parseParam()
-			{
-				imageName
-			}
-		protected:
-			// TODO： effect可以加入参数
-			virtual LabelEffect* CreateEffect()
-			{
-				return new UnderlineEffect();
-			}
 		};
 		
 
+		class DXLabelBitmapGenerater
+		{
+
+		};
 
 		/*
 		// [b]

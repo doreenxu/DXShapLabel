@@ -101,29 +101,29 @@ void HBShaper::addFeature(hb_feature_t feature) {
 //         cout << endl;
 // #endif
 // 
-        // float s0 = 0.0;
-        // float t0 = 0.0;
-        // float s1 = (float) glyph->width / twidth;
-        // float t1 = (float) glyph->height / theight;
-        // float xa = (float) glyphPos[i].x_advance / 64;
-        // float ya = (float) glyphPos[i].y_advance / 64;
-        // float xo = (float) glyphPos[i].x_offset / 64;
-        // float yo = (float) glyphPos[i].y_offset / 64;
-        // float x0 = x + xo + glyph->bearing_x;
-        // float y0 = floor(y + yo + glyph->bearing_y);
-        // float x1 = x0 + glyph->width;
-        // float y1 = floor(y0 - glyph->height);
-
-        // gl::Vertex* vertices = new gl::Vertex[4];
-        // vertices[0] = gl::Vertex(x0,y0, s0,t0);
-        // vertices[1] = gl::Vertex(x0,y1, s0,t1);
-        // vertices[2] = gl::Vertex(x1,y1, s1,t1);
-        // vertices[3] = gl::Vertex(x1,y0, s1,t0);
-
-        // unsigned short* indices = new unsigned short[6];
-        // indices[0] = 0; indices[1] = 1;
-        // indices[2] = 2; indices[3] = 0;
-        // indices[4] = 2; indices[5] = 3;
+//         float s0 = 0.0;
+//         float t0 = 0.0;
+//         float s1 = (float) glyph->width / twidth;
+//         float t1 = (float) glyph->height / theight;
+//         float xa = (float) glyphPos[i].x_advance / 64;
+//         float ya = (float) glyphPos[i].y_advance / 64;
+//         float xo = (float) glyphPos[i].x_offset / 64;
+//         float yo = (float) glyphPos[i].y_offset / 64;
+//         float x0 = x + xo + glyph->bearing_x;
+//         float y0 = floor(y + yo + glyph->bearing_y);
+//         float x1 = x0 + glyph->width;
+//         float y1 = floor(y0 - glyph->height);
+// 
+//         gl::Vertex* vertices = new gl::Vertex[4];
+//         vertices[0] = gl::Vertex(x0,y0, s0,t0);
+//         vertices[1] = gl::Vertex(x0,y1, s0,t1);
+//         vertices[2] = gl::Vertex(x1,y1, s1,t1);
+//         vertices[3] = gl::Vertex(x1,y0, s1,t0);
+// 
+//         unsigned short* indices = new unsigned short[6];
+//         indices[0] = 0; indices[1] = 1;
+//         indices[2] = 2; indices[3] = 0;
+//         indices[4] = 2; indices[5] = 3;
 // 
 //         gl::Mesh* m = new gl::Mesh;
 // 

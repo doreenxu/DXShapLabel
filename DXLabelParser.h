@@ -1,3 +1,5 @@
+#ifndef _CUSTOM_DXLabelParseOper
+#define _CUSTOM_DXLabelParseOper
 
 #include "base/ccTypes.h"
 
@@ -19,20 +21,19 @@
 #include "2d/CCSprite.h"
 #include "renderer/CCQuadCommand.h"
 #include "ui/UIWidget.h"
-#include "hbshaper.h"
+//#include "hbshaper.h"
 #include "WeCChartFontManager.h"
+#include "DXShaper.h"
+// CUSTOM_INCLUDE_END
 
 #define WEC_LABEL_VBO_SIZE 65536
 
-// CUSTOM_INCLUDE_END
 
-#ifndef _CUSTOM_DXLabelParseOper
-#define _CUSTOM_DXLabelParseOper
 
 namespace cocos2d
 {
 
-    class CC_DLL WeCCharFontManager;
+    //class CC_DLL WeCCharFontManager;
     //class CC_DLL LabelForSystemFont;
 
     /*  Custom namespace block. You should write
@@ -48,10 +49,7 @@ namespace cocos2d
     {
 
 		//---------- ��Ʒ ----------
-		struct LabelEffect
-		{
-			void execute();
-		};
+
 
 		struct LabelAction 
 		{
@@ -80,8 +78,12 @@ namespace cocos2d
 			const std::string& getCContent() { return m_content; }
 			void setContent(const char* _content) { m_content = _content; }
 
+			const std::string& getFontName() { return m_fontName; }
+			void setFontName(const char* _fontName) { m_fontName = _fontName; }
 
-			void addEffect(LabelEffect* _eff) 
+			void setContentPrintSize(Size size) { m_printSize = size; }
+
+			void addEffect(DXLabelBitmapGenerator* _eff) 
 			{
 				if (!_eff) 
 					return;
@@ -96,19 +98,28 @@ namespace cocos2d
 
 			// 对label的所有操作最终转为triangleinfo缓存在componnet对象中，并以component
 			// 为单位进行合并
-			void addGlyphQuad(unsigned int code, TriangleInfo triangleInfo){
+			void addGlyphQuad(unsigned int code, TriangleInfo triangleInfo)
+			{
 
 			}
+
+			const std::vector<Glyph>& getGlyphInfoVec() { return m_glyphInfoVec; }
 		private:
+			std::string m_fontName;
 			std::string m_content;
+			Size m_printSize;
 
 			unsigned int m_fontSize;
 			// 这个没有用，因为同一个code经过塑形后可能对应不同的glyph
 			std::map<unsigned short, unsigned int> m_glyphIndexMap;
+
+			// 塑形后的属性
+			std::vector<DXShaper::Glyph> m_glyphInfoVec;
 			// style, outline, shadow
-			std::vector<LabelEffect*> m_effList;
+			std::vector<DXLabelBitmapGenerator*> m_effList;
+
 			// render
-			std::unordered_map<unsigned short, TriangleInfo> triangleInfoList;
+			std::unordered_map<int, TriangleInfo> triangleInfoList;
 		};
 
 
@@ -141,4 +152,5 @@ namespace cocos2d
 	}
 
 }  // namespace cocos2d
-#endif  // _CUSTOM_WIDGET_
+#endif  // _CUSTOM_DXLabelParseOper
+

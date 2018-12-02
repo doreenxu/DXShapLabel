@@ -19,21 +19,17 @@ namespace cocos2d
 			EffectStyle_Outline = 1 << 3,
 			EffectStyle_Color = 1 << 4,
 
-			EffectStyle_All = (EffectStyle_Bold | EffectStyle_Underline 
-												| EffectStyle_Italic 
-												| EffectStyle_Outline 
-												| EffectStyle_Color),
+			EffectStyle_All = (EffectStyle_Bold | EffectStyle_Underline | EffectStyle_Italic | EffectStyle_Outline | EffectStyle_Color),
 		};
 
 		// 根据特效生成bitmap是有关联性的，必须要一起考虑
 		class DXLabelBitmapGenerator
 		{
 		public:
-			bool getBitmap(Glyph* _glyph);
+			void getBitmap(Glyph* _glyph);
 			
 			bool getNormalBitmap(Glyph* _glyph);
 			bool setRotateBitmap(Glyph* _glyph);
-			bool setOutLineBitmap(Glyph* _glyph);
 		};
 
 		struct ColorEffect : public DXLabelBitmapGenerator{

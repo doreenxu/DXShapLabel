@@ -257,9 +257,6 @@ namespace cocos2d
 			void _typo(const std::u16string &text);
 			void _shap(const std::u16string &text);
 
-			// {offset, comp}
-			std::map<int, LabelComponent* > m_compMap;
-			std::map<int, LabelAction* > actionMap;
 			// 用parser关心的char注册parser
 			std::map<std::string, DXLabelParseOper*> m_parserMap; 
 			DXShaper* m_shaper;

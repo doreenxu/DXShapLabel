@@ -1,24 +1,119 @@
 #include "DXShaper.h"
-#include "freetypelib.h"
+#include "DXLabel.h"
+//#include "freetypelib.h"
+#include "DXLabelParser.h"
 
 namespace cocos2d
 {
 	namespace ui
 	{
+		enum I18nType
+		{
+			I18N_ZH_CN = 0,
+			I18N_ZH_TW,
+			I18N_EN_US,
+			I18N_JA_JP,
+			I18N_KO_KR,
+			I18N_TH_TH,
+			I18N_VI_VN,
+			I18N_ID_ID,
+			I18N_COUNT
+		};
+
 		DXShaper::DXShaper()
 		{
 		}
-
+		DXShaper::DXShaper(FT_Face* face)
+		{
+			m_ftface = face;
+			m_buffer = nullptr;
+			m_font = nullptr;
+		}
 
 		DXShaper::~DXShaper()
 		{
+			hb_buffer_destroy(m_buffer);
+			hb_font_destroy(m_font);
 		}
 
-		void DXShaper::doShap(LabelComponent* lbComp)
+		void DXShaper::init()
+		{
+			m_font = hb_ft_font_create(*m_ftface, NULL);
+			m_buffer = hb_buffer_create();
+
+			hb_buffer_allocation_successful(m_buffer);
+		}
+
+		// Ù–‘
+		hb_script_t DXShaper::gethb_script(int curlan)
+		{
+			hb_script_t hb_script = HB_SCRIPT_COMMON;
+			switch (curlan)
+			{
+			case I18N_ZH_CN:
+			case I18N_ZH_TW:
+				hb_script = HB_SCRIPT_HAN;
+				break;
+			case I18N_EN_US:
+				hb_script = HB_SCRIPT_LATIN;
+				break;
+			case I18N_JA_JP:
+				hb_script = HB_SCRIPT_KATAKANA;
+				break;
+			case I18N_KO_KR:
+				hb_script = HB_SCRIPT_HANGUL;
+				break;
+			case I18N_TH_TH:
+				hb_script = HB_SCRIPT_THAI;
+				break;
+			case I18N_VI_VN:
+				hb_script = HB_SCRIPT_CHAM;
+				break;
+			case I18N_ID_ID:
+				hb_script = HB_SCRIPT_DEVANAGARI;
+				break;
+			default:
+				break;
+			}
+			return hb_script;
+		}
+		//  Ù–‘
+		std::string DXShaper::gethb_lan_code(int curlan)
+		{
+			switch (curlan)
+			{
+			case I18N_ZH_CN:
+			case I18N_ZH_TW:
+				return "zh";
+			case I18N_EN_US:
+				return "en";
+			case I18N_JA_JP:
+				return "ja";
+			case I18N_KO_KR:
+				return "ko";
+			case I18N_TH_TH:
+				return "th";
+			case I18N_VI_VN:
+				return "cjm";
+			case I18N_ID_ID:
+				return "hi";
+			}
+			return "";
+		}
+
+		void DXShaper::doShap(std::vector<Glyph>& glyphList )
 		{
 			if (!m_font || !m_buffer) return;
 
-			HBText textInfo;
+			m_textInfo.data.clear();
+
+			m_textInfo.direction = HB_DIRECTION_LTR;
+			for (auto glyph : glyphList)
+			{
+				m_textInfo.data.push_back(glyph.charCode);
+				m_textInfo.language = gethb_lan_code(glyph.language);
+				m_textInfo.script = gethb_script(glyph.language);
+			}
 
 			hb_buffer_reset(m_buffer);
 
@@ -39,72 +134,23 @@ namespace cocos2d
 			LabelComponent::TriangleInfo triangleInfo;
 			float textWidth = 0;
 			float textHeight = 0;
-			
-			for (int i = 0; i < glyphCount; ++i) {
-				Glyph* glyph = m_ftLib->rasterize(m_ftface, glyphInfo[i].codepoint);
 
-				int twidth = pow(2, ceil(log(glyph->width) / log(2)));
-				int theight = pow(2, ceil(log(glyph->height) / log(2)));
-
-				float x = 0.0;
-				float y = 0.0;
-				float s0 = 0.0;
-				float t0 = 0.0;
-				float s1 = (float)glyph->width / twidth;
-				float t1 = (float)glyph->height / theight;
-				float xa = (float)glyphPos[i].x_advance / 64;
-				float ya = (float)glyphPos[i].y_advance / 64;
-				float xo = (float)glyphPos[i].x_offset / 64;
-				float yo = (float)glyphPos[i].y_offset / 64;
-				float x0 = x + xo + glyph->bearing_x;
-				float y0 = floor(y + yo + glyph->bearing_y);
-				float x1 = x0 + glyph->width;
-				float y1 = floor(y0 - glyph->height);
-
-				gl::Vertex* vertices = new gl::Vertex[4];
-				vertices[0] = gl::Vertex(x0, y0, s0, t0);
-				vertices[1] = gl::Vertex(x0, y1, s0, t1);
-				vertices[2] = gl::Vertex(x1, y1, s1, t1);
-				vertices[3] = gl::Vertex(x1, y0, s1, t0);
-
-				unsigned short* indices = new unsigned short[6];
-				indices[0] = 0; indices[1] = 1;
-				indices[2] = 2; indices[3] = 0;
-				indices[4] = 2; indices[5] = 3;
-
-				// gl::Mesh* m = new gl::Mesh;
-
-				// m->indices = indices;
-				// m->textureData = tdata;
-
-				// // don't do this!! use atlas texture instead
-				// m->textureId = gl::getTextureId(twidth, theight);
-
-				// m->vertices = vertices;
-				// m->nbIndices = 6;
-				// m->nbVertices = 4;
-
-				// gl::uploadTextureData(m->textureId, twidth, theight, tdata);
-
-				// meshes.push_back(m);
-				triangleInfo.triangles.emplace_back(vertices);
-				triangleInfo.indices.emplace_back(indices);
-
-				lbComp.addGlyphQuad(i, triangleInfo);
-
-				x += xa;
-				y += ya;
-
-				textWidth = x;
-				textHeight = MAX(y, textHeight);
-
-				lib->freeGlyph(glyph);
+			if (glyphList.size() == glyphCount)
+			{
+				for (unsigned int i = 0; i < glyphCount; ++i) {
+					Glyph* glyph = &(glyphList.at(i));
+					glyph->glyphIndex = glyphInfo[i].codepoint;
+					glyph->x_advance = (float)glyphPos[i].x_advance / 64;
+					glyph->y_advance = (float)glyphPos[i].y_advance / 64;
+					glyph->x_offset = (float)glyphPos[i].x_offset / 64;
+					glyph->y_offset = (float)glyphPos[i].y_offset / 64;
+				}
 			}
-
-			lbComp->settextWidth(textWidth);
-			lbComp->settextHeight(textHeight);
-
-			//return meshes;
-
+			else
+			{
+				// some glyph must been connect togather;
+			}
+			
 		}
 	}
+}

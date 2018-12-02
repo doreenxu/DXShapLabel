@@ -1,16 +1,20 @@
-#pragma once
+#ifndef _DXShaper_H_
+#define _DXShaper_H_
 
 #include <string>
 #include "hb-ft.h"
 
-class LabelComponent;
+#include "DXLabel.h"
+
 namespace cocos2d
 {
 	namespace ui
 	{
-
+		struct LabelComponent;
 		class DXShaper
 		{
+		public:
+
 			typedef struct {
 				std::string data;
 				std::string language;
@@ -21,96 +25,23 @@ namespace cocos2d
 
 		public:
 			DXShaper();
+			DXShaper(FT_Face* face);
 			virtual ~DXShaper();
-			DXShaper(FT_Face* face)
-			{
-				m_ftface = face;
-			}
-			virtual ~DXShaper()
-			{
-				hb_buffer_destroy(m_buffer);
-				hb_font_destroy(m_font);
-			}
 
-			void init()
-			{
-				m_font = hb_ft_font_create(*m_ftface, NULL);
-				m_buffer = hb_buffer_create();
+			void init();
+			hb_script_t gethb_script(int curlan);
+			std::string gethb_lan_code(int curlan);
 
-				hb_buffer_allocation_successful(m_buffer);
-			}
-			// 	属性
-			// 		hb_script_t gethb_script(int curlan)
-			// 		{
-			// 			hb_script_t hb_script = HB_SCRIPT_COMMON;
-			// 			switch (curlan)
-			// 			{
-			// 			case I18N_ZH_CN:
-			// 			case I18N_ZH_TW:
-			// 				hb_script = HB_SCRIPT_HAN;
-			// 				break;
-			// 			case I18N_EN_US:
-			// 				hb_script = HB_SCRIPT_LATIN;
-			// 				break;
-			// 			case I18N_JA_JP:
-			// 				hb_script = HB_SCRIPT_KATAKANA;
-			// 				break;
-			// 			case I18N_KO_KR:
-			// 				hb_script = HB_SCRIPT_HANGUL;
-			// 				break;
-			// 			case I18N_TH_TH:
-			// 				hb_script = HB_SCRIPT_THAI;
-			// 				break;
-			// 			case I18N_VI_VN:
-			// 				hb_script = HB_SCRIPT_CHAM;
-			// 				break;
-			// 			case I18N_ID_ID:
-			// 				hb_script = HB_SCRIPT_DEVANAGARI;
-			// 				break;
-			// 			default:
-			// 			break;
-			// 			}
-			// 			return hb_script;
-			// 		}
-			// 		// 属性
-			// 		std::string gethb_lan_code(int curlan)
-			// 		{
-			// 			switch (curlan)
-			// 			{
-			// 			case I18N_ZH_CN:
-			// 			case I18N_ZH_TW:
-			// 				return "zh";
-			// 			case I18N_EN_US:
-			// 				return "en";
-			// 			case I18N_JA_JP:
-			// 				return "ja";
-			// 			case I18N_KO_KR:
-			// 				return "ko";
-			// 			case I18N_TH_TH:
-			// 				return "th";
-			// 			case I18N_VI_VN:
-			// 				return "cjm";
-			// 			case I18N_ID_ID:
-			// 				return "hi";
-			// 			}
-			// 			return "";
-			// 		}
-
-			virtual void doShap(LabelComponent* lbComp);
+			virtual void doShap(std::vector<Glyph>& glyphList);
 		private:
 			hb_buffer_t * m_buffer;
 			hb_font_t* m_font;
 			HBText m_textInfo;
 
+			// Freetypelib和face都需要缓存，需要时获取
 			FT_Face* m_ftface;
-			FreeTypeLib* m_ftLib;
 		};
 
-	}
-}
-
-class DXFontMaterialGen
-{
-
+	};
 };
-
+#endif//_DXShaper_H_

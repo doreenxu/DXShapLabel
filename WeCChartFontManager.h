@@ -177,11 +177,13 @@ public:
 
     virtual int                         getPrintedLineHeight(void) const;
 
+	/** Get the instance of FreeType engine, if the engine is not created, create a new singleton. */
+	static FT_Library                   getFTLibrary(void);
+	/** Get the font face by the specified name and size. */
+	static bool                         getFontFace(const std::string &name, FT_Face &face, FT_Encoding &encode);
+
 protected:
-    /** Get the instance of FreeType engine, if the engine is not created, create a new singleton. */
-    static FT_Library                   _getFTLibrary(void);
-    /** Get the font face by the specified name and size. */
-    static bool                         _getFontFace(const std::string &name, FT_Face &face, FT_Encoding &encode);
+
     /** Destroy the font face by the specified name, will remove the font info from map. */
     static bool                         _doneFontface(const std::string &name);
 

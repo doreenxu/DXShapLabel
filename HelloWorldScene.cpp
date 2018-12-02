@@ -7,6 +7,7 @@
 
 #include "WeCLabel.h"
 #include "WeCChartFontManager.h"
+#include "DXLabel.h"
 
 USING_NS_CC;
 
@@ -43,6 +44,11 @@ bool HelloWorld::init()
     this->addChild(scene);
 
     lbl = dynamic_cast<cocos2d::ui::WeCLabel*>(scene->getChildByName("lbl"));
+
+	cocos2d::ui::DXLabel* label = new cocos2d::ui::DXLabel();
+	label->setPosition(cocos2d::Vec2(100, 100));
+	label->setContent("[u]This is the first sentence.[/u]");
+	scene->addChild(label);
 
     return true;
 }

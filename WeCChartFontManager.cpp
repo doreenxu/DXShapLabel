@@ -91,7 +91,7 @@ int WeCFontFreeType::getPrintedLineHeight(void) const
     return 0;
 }
 
-bool WeCFontFreeType::_getFontFace(const std::string &name, FT_Face &face, FT_Encoding &encode)
+bool WeCFontFreeType::getFontFace(const std::string &name, FT_Face &face, FT_Encoding &encode)
 {
     // Check if the font face existed or not.
     auto found = sFontFileInfos.find(name);
@@ -448,7 +448,7 @@ unsigned char* WeCFontFreeType::getBitmap(unsigned short code, int &outwith,
     return nullptr;
 }
 
-FT_Library WeCFontFreeType::_getFTLibrary(void)
+FT_Library WeCFontFreeType::getFTLibrary(void)
 {
 #ifndef CC_STUDIO_ENABLED_VIEW
     return FontFreeType::getFTLibrary();
@@ -490,7 +490,7 @@ WeCFontFreeTypeTTF::WeCFontFreeTypeTTF(const std::string &fontName, int fontSize
     if (fontName.empty())
         return;
 
-    if (!_getFontFace(fontName, mFace, mEncoding))
+    if (!getFontFace(fontName, mFace, mEncoding))
         return;
 
     if (!prepareRender())

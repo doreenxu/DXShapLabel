@@ -42,20 +42,9 @@ namespace cocos2d
 	
 	namespace ui
     {   
-		bool DXLabelBitmapGenerator::getBitmap(Glyph* _glyph)
+		void DXLabelBitmapGenerator::getBitmap(Glyph* _glyph)
 		{
-			// 如果贴图缓存已经存在
-			// 如果是FT生成带效果的图就不能通用了，atlas {key:fontName,size,effectstyle}
-			if(WeCCharFontManager::hasBitmap(_glyph))
-			{
-				auto bitmap = WeCCharFontManager::getBitmap(_glyph);
-				return true;
-			}
-			else
-			{
-				getBitmapByFT(_glyph);
-			}
-			return false;
+			//如果贴图缓存已经存在
 		}
 
 		bool DXLabelBitmapGenerator::getNormalBitmap(Glyph* _glyph)
@@ -66,18 +55,6 @@ namespace cocos2d
 			int fontSizePoints = (int)(64.f * _glyph->fontSize * CC_CONTENT_SCALE_FACTOR());
 			FT_Error error = FT_Set_Char_Size(*m_ftface, 0, fontSizePoints, dpi, dpi);
 			if (error) return false;
-
-
-			//Effect
-			if(_glyph->effect & EffectStyle::EffectStyle_Italic)
-			{
-				setRotateBitmap(_glyph);
-			}
-			else if(_glyph->effect & EffectStyle::EffectStyle_Outline)
-			{
-				setOutLineBitmap(_glyph);
-			}
-
 
 			error = FT_Load_Glyph(*m_ftface,
 				_glyph->glyphIndex, // the glyph_index in the font file
@@ -146,10 +123,10 @@ namespace cocos2d
 			}
 
 			/* set transformation */
-			FT_Set_Transform(*m_ftface, &matrix, &pen);
+			FT_Set_Transform(face, &matrix, &pen);
 		}
 		//---------- ��Ʒ ----------
-		bool DXLabelBitmapGenerator::setOutLineBitmap(LabelComponent* comp)
+		void DXLabelBitmapGenerator::getOutLineBitmap(LabelComponent* comp)
 		{
 			do {
 				auto library = cocos2d::WeCFontFreeType::getFTLibrary();
@@ -255,12 +232,18 @@ namespace cocos2d
 				re = cache;
 			} while (0);
 		}
-
             // 效果对象会对component的triangle属性进行修改
 			void UnderlineEffect::execute(LabelComponent* comp)
             {
                 //原实现是在每个字符加入“_“下划线，这样实现，下划线之间会有间隙
                 //考虑加入一条（textwidth，1）的线，
+            }
+         
+			void BoldEffect::execute(){}
+
+            void OutlineEffect::execute(LabelComponent* comp)
+            {
+				
             }
 
 			//https://www.freetype.org/freetype2/docs/tutorial/example2.cpp
