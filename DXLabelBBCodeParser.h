@@ -44,70 +44,87 @@ namespace cocos2d
         // force namespace to ui, because the auto generate binding config is only one namespace.
     namespace ui
     {
+    	struct BBCodeItem
+    	{
+    		EffectStyle m_style;
 
-		//---------- ��Ʒ ----------
-		
+    		std::string m_beginSymble;
+			std::string m_endSymble;
+			std::string m_param;//参数用空格分割，[img scale=1 path=2] 
+    	}
 		/*
-		BBCode�������������п�ͷ��β�����䣬�õ�һ��BBCoede��Ʒ
 		*/
 		class DXLabelBBCodeParser : public DXLabelParseOper
 		{
 		public:
 
 		protected:
-			virtual void initRule() 
+			virtual void initRule(const std::string& text)
 			{
 			}
 			virtual bool TryParse(const std::string& text, 
-			int begin_offset, int& end_offset, LabelComponent** refComp,
-			LabelAction** refAction)
+			int begin_offset, int& end_offset)
 			{
-				if (m_beginSymble.empty() || m_endSymble.empty())
-					return false;
+				initRule(text);
 
-				size_t foundBegin;
-				size_t foundEnd;
-
-				// ��ȡ��offset��ʼ������
-				std::string subText = text.substr(begin_offset, text.length() - begin_offset);
-				foundBegin = text.find(m_beginSymble);
-				if (foundBegin != std::string::npos)//�ҵ��_ʼ
+				for(auto item : m_bbcodeItemVec)
 				{
-					foundEnd = text.find(m_endSymble, foundBegin+1);
-					if (foundEnd != std::string::npos)//�ҵ��Y��
-					{
-						end_offset = foundEnd + m_endSymbleSize;
-						std::string content = subText.substr(m_beginSymbleSize + 1, foundEnd - foundBegin - m_beginSymbleSize);
+					if (item.m_beginSymble.empty() || item.m_endSymble.empty())
+						continue;
 
-						*refComp = CreateComponent();
-						if (*refComp != nullptr)
-						{
-							(*refComp)->setContent(content.c_str());
-						}
+					size_t foundBegin;
+					size_t foundEnd;
+
+					std::string subText = text.substr(begin_offset, text.length() - begin_offset);
+					foundBegin = text.find(item.m_beginSymble);
+					if (foundBegin != std::string::npos)
+					{
+						pushEffect(item.m_style);
+						end_offset = foundBegin + item.m_beginSymble;
 						return true;
 					}
+					foundEnd = text.find(item.m_endSymble);
+					if (foundEnd != std::string::npos)
+					{
+						popEffect(item.m_style);
+						end_offset = foundBegin + item.m_beginSymble;
+						return true;
+					}
+				
+
+					// 修改思路：不要去找结尾符号，这样不易嵌套，
+					// foundEnd = text.find(m_endSymble, foundBegin+1);
+					// if (foundEnd != std::string::npos)
+					// {
+					// 	end_offset = foundEnd + m_endSymbleSize;
+					// 	std::string content = subText.substr(m_beginSymbleSize + 1, foundEnd - foundBegin - m_beginSymbleSize);
+
+					// 	*refComp = CreateComponent();
+					// 	if (*refComp != nullptr)
+					// 	{
+					// 		(*refComp)->setContent(content.c_str());
+					// 	}
+					// 	return true;
+					// }
 				}
 				return false;
 			}
 
-			// ����һ��BBCode�aƷ
-			virtual LabelComponent* CreateComponent()
+			virtual EffectStyle GetCurrentStyle()
 			{
-				auto obj = new LabelComponent();
-				obj->addEffect(CreateEffect());
-				return obj;
+
 			}
 
-			virtual LabelEffect* CreateEffect() { return nullptr; }
+			void pushEffect(){}
+			void popEffect(){}
+
 
 		protected:
-			std::string m_beginSymble;
-			std::string m_endSymble;
+			
 
-			std::string m_paramName;//参数用空格分割，[img scale=1 path=2] 
 
-			int m_beginSymbleSize;
-			int m_endSymbleSize;
+			std::vector<BBCodeItem> m_bbcodeItemVec;
+			EffectStyle m_curStyle;
 		};
 
 		// ����BBCodeParser�����ƥ��ɹ�������һ��BoldComponent��Ʒ

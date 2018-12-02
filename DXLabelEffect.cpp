@@ -255,18 +255,12 @@ namespace cocos2d
 				re = cache;
 			} while (0);
 		}
+
             // 效果对象会对component的triangle属性进行修改
 			void UnderlineEffect::execute(LabelComponent* comp)
             {
                 //原实现是在每个字符加入“_“下划线，这样实现，下划线之间会有间隙
                 //考虑加入一条（textwidth，1）的线，
-            }
-         
-			void BoldEffect::execute(){}
-
-            void OutlineEffect::execute(LabelComponent* comp)
-            {
-				
             }
 
 			//https://www.freetype.org/freetype2/docs/tutorial/example2.cpp
