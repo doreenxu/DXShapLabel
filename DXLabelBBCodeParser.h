@@ -115,8 +115,14 @@ namespace cocos2d
 
 			}
 
-			void pushEffect(){}
-			void popEffect(){}
+			void pushEffect()
+			{
+				m_curStyle = m_curStyle | 
+			}
+			void popEffect()
+			{
+
+			}
 
 
 		protected:
