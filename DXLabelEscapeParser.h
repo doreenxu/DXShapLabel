@@ -45,7 +45,7 @@ namespace cocos2d
     {
 		struct LabelBreakAction : LabelAction
 		{
-
+            
 		};
 		/**
 		* ��һ��������ת����Ľ���
@@ -56,7 +56,6 @@ namespace cocos2d
 			virtual bool TryParse(const std::string& text, 
             int begin_offset, 
             int& end_offset, 
-            LabelComponent** refComp,
 			LabelAction** refAction)
 			{
 				return false;

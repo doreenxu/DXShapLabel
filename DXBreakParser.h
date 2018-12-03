@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_DXLabel
-#define _CUSTOM_DXLabel
+#ifndef _CUSTOM_DXBreakParser_H_
+#define _CUSTOM_DXBreakParser_H_
 
 #include <map>
 #include <vector>
@@ -8,15 +8,16 @@ namespace cocos2d
 {
 	namespace ui
 	{
-
 		class BreakStretagy
 		{
 		public:
-			bool canBreak(){ return m_breakState; }
-
+			bool insertChar(char* charCode);
+		private:
+			bool canBreak() { return m_breakState; }
 		private:
 			bool m_breakState;
-		}
+			std::string charList;
+		};
 		// 根据不同的语言上下文判断当前是否可以断词
 		class DXBreakParser
 		{
@@ -25,27 +26,15 @@ namespace cocos2d
 			~DXBreakParser();
 
 			// typo的过程中塞入char
-			void insertChar(char* charCode)
-			{
-				m_breakState = true;
-				for(auto stretagy : stetagyList)
-				{
-					if(!stretagy.canBreak())
-					{
-						m_breakState = false;
-					}
-				}
-			}
-			// 当需要断词时，获取最近一个断词点
-			int revertToLastBreakPtr()
-			{
-
-			}
-
+			void insertChar(char* charCode, int curLan);
 
 		protected:
 			int m_lastBreakPtr;
-			std::vector<BreakStretagy> stetagyList;
+			//{lan, stretagelist} 不同语言有不同断词策略
+			BreakStretagy* m_defaultBkStretagy;
+			std::map<int, std::vector<BreakStretagy*>> stretagyMap;
+			std::string charList;
 		};
 	}
 }
+#endif //_CUSTOM_DXBreakParser_H_

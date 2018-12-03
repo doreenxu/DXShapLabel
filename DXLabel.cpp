@@ -17,6 +17,10 @@ namespace cocos2d
 	{
 		DXLabel::DXLabel()
 		{
+#if CC_LABEL_DEBUG_DRAW
+            mDebugDrawNode = DrawNode::create();
+            addChild(mDebugDrawNode);
+#endif
 			_director = Director::getInstance();
 
 			_registeParser("", nullptr);
@@ -80,8 +84,8 @@ namespace cocos2d
 			{
 				m_bitmapGen->getBitmap(curGlyph);
 
-			int twidth = pow(2, ceil(log(curGlyph->width)/log(2)));
-			        int theight = pow(2, ceil(log(curGlyph->height)/log(2)));
+				int twidth = pow(2, ceil(log(curGlyph->width)/log(2)));
+			    int theight = pow(2, ceil(log(curGlyph->height)/log(2)));
 
 					float s0 = 0.0;
 			        float t0 = 0.0;
@@ -130,6 +134,7 @@ namespace cocos2d
 		}
 
 		// 排版，是一种有规则的装箱算法
+		std::vector<float> lineOffset;
 		void DXLabel::_typo(const std::u16string &text)
 		{
 			int cur_offset = 0;
@@ -143,6 +148,7 @@ namespace cocos2d
 			float pen_x = 0;
 			float pen_y = 0;
 			// {linenumber, comp}
+			// step1. 排列每一行
 			while (cur_offset < iMax)
 			{
 				pen_y = curLine * lineHeight;
@@ -163,16 +169,15 @@ namespace cocos2d
 				// 不可分割状态判断
 				// 英语环境下空格可分，
 				// 其他大多语言环境下，就是当前即可分；
-
-				DXBreakParser* _breakParser = getBreakParserByLan();
-				// 
 				Glyph curGlyph = m_charList[cur_offset];
+				m_breakParser->insertChar(curGlyph.charCode);
+
 				if(curLineWidth + curGlyph.x_advance > curLineMaxWidth)
 				{
 					// 如果当前语种有断词规则，则回退到上一个断词点
-					if(_breakParser!=nullptr)
+					if(m_breakParser!=nullptr)
 					{
-						auto lastBreakPtr = _breakParser->revertToLastBreakPtr();
+						auto lastBreakPtr = m_breakParser->revertToLastBreakPtr();
 						if(lastBreakPtr != 0)//如果当前行放不下，当前是不可分割状态，且分割点是行首，说明无论如何都放不下，就强制换行
 						{
 							cur_offset = lastBreakPtr;
@@ -186,11 +191,55 @@ namespace cocos2d
 					pen_x += curGlyph.x_advance;
 					cur_offset++;
 				}
+
+				curGlyph.pen_x_offset = pen_x;
+				curGlyph.pen_y_offset = pen_y;
 			}
+
+			//step2.整体排列
+			// Process line by verAlign.
+            float yOffset = 0;
+            float tmpTextHeight = (lineIndex + 1) * lineHeightOffset - mSpacingY * mScale;
+            switch (mVerAlign)
+            {
+            case cocos2d::ui::WeCLabel::VerAlign::Top:
+                yOffset = contentSize.height;
+                break;
+            case cocos2d::ui::WeCLabel::VerAlign::Center:
+                yOffset = (tmpTextHeight * scale + contentSize.height) * 0.5f;
+                break;
+            case cocos2d::ui::WeCLabel::VerAlign::Bottom:
+                yOffset = tmpTextHeight * scale;
+                break;
+            default:
+                break;
+            }
+
+            // Process the line by the HorAlign.
+            for (unsigned int i = 0; i < lineOffset.size(); ++i)
+            {
+                switch (mHorAlign)
+                {
+                case cocos2d::ui::WeCLabel::HorAlign::Left:
+                    lineOffset[i] = 0;
+                    break;
+                case cocos2d::ui::WeCLabel::HorAlign::Center:
+                    lineOffset[i] = (contentSize.width - lineOffset[i] * scale) * 0.5f;
+                    break;
+                case cocos2d::ui::WeCLabel::HorAlign::Right:
+                    lineOffset[i] = contentSize.width - lineOffset[i] * scale;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            //step3.构建quads
 		}
 
 
 		DXLabelBBCodeParser bbCodeParser;
+		DXLabelEscapeParser escapeParser;
 		bool DXLabel::_parse(const std::u16string &text)
 		{
 			std::string strUtf8;
@@ -199,8 +248,6 @@ namespace cocos2d
 			int cur_offset = 0;
 			int end_offset;
 			int iLength = strUtf8.size();
-			LabelComponent* ptrComp = nullptr;
-			LabelAction* ptrAction = nullptr;
 
 			while (cur_offset != iLength)
 			{
@@ -216,7 +263,7 @@ namespace cocos2d
 				}
 				// Escape解析会有一些操作,插入img和换行都可以视为操作吧，单词分割符
 				LabelAction action;
-				bool rs = DXLabelEscapeParser::TryParse(strUtf8, cur_offset, end_offset, &action);
+				bool rs = escapeParser.TryParse(strUtf8, cur_offset, end_offset, &action);
 				if (rs == true)
 				{
 					actionMap[cursorIndex] = action;//当前位置插入一个动作，后面排版使用

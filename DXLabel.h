@@ -28,6 +28,8 @@ namespace cocos2d
 				float y_advance;
 				float x_offset;
 				float y_offset;
+				float pen_x_offset;
+				float pen_y_offset;
 
 				int fontAtlasTexIndex;
 				float fontAtlasU;
@@ -62,10 +64,8 @@ namespace cocos2d
 		private:
 			std::string m_text;
 			std::u16string m_reuseU16Text;
-			// {offset, comp}
-			std::map<int, LabelComponent* > m_compMap;
-			std::vector<Glyph> m_charList;
 
+			std::vector<Glyph> m_charList;
 
 			std::map<int, LabelAction* > actionMap;
 			// ÓÃparser¹ØÐÄµÄchar×¢²áparser

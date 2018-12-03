@@ -45,6 +45,7 @@ namespace cocos2d
 		void DXLabelBitmapGenerator::getBitmap(Glyph* _glyph)
 		{
 			//如果贴图缓存已经存在
+			// 公司pc修改此函数没有提交2018-12-2晚
 		}
 
 		bool DXLabelBitmapGenerator::getNormalBitmap(Glyph* _glyph)
