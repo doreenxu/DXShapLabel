@@ -235,6 +235,7 @@ namespace cocos2d
             }
 
             //step3.构建quads
+            
 		}
 
 
